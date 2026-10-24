@@ -1,0 +1,40 @@
+name: Publish Aurora Premium 1.0.9.1 signed APK
+on:
+  push:
+    paths: ['.github/workflows/publish-aurora-1091.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish-verified-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Download privately built Aurora 1.0.9.1 artifact
+        env:
+          DOWNLOAD_SOURCE: 'https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-6070-820a-b7ce-ce363c47efcd/raw?se=2026-10-24T19%3A31%3A14Z&sp=r&sv=2026-02-06&sr=b&scid=95f220bd-5a5e-5f8f-b100-a868ae888e0b&skoid=d4d17077-8f33-42a9-bd8b-aa9d5eaf5320&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-24T05%3A23%3A27Z&ske=2026-10-25T05%3A23%3A27Z&sks=b&skv=2026-02-06&sig=rg3r8SNCAuamCtNNxKXuHoi8kuHe4tiBCTXkjkCyjZU%3D'
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 15 --max-time 90 "$DOWNLOAD_SOURCE" --output /tmp/aurora-1091-artifact.zip
+          test "$(stat -c '%s' /tmp/aurora-1091-artifact.zip)" -gt 1000000
+          unzip -j /tmp/aurora-1091-artifact.zip Aurora-Premium-1.0.9.1-Glow-SIGNED.apk -d /tmp/
+      - name: Authenticate signed payload by its pinned SHA-256
+        run: |
+          set -euo pipefail
+          echo "513d47736768d083b803e4c564df3e4368576f8e5702ad8ab385a0fba48c6747  /tmp/Aurora-Premium-1.0.9.1-Glow-SIGNED.apk" | sha256sum --check --status
+          unzip -j /tmp/aurora-1091-artifact.zip Aurora-Premium-1.0.9.1-package.txt -d /tmp/
+          grep -q "name='bg.razgrad.aurorapremium'" /tmp/Aurora-Premium-1.0.9.1-package.txt
+          grep -q "versionCode='60'" /tmp/Aurora-Premium-1.0.9.1-package.txt
+          grep -q "versionName='1.0.9.1'" /tmp/Aurora-Premium-1.0.9.1-package.txt
+      - name: Publish official versioned downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create v1.0.9.1-official /tmp/Aurora-Premium-1.0.9.1-Glow-SIGNED.apk#app-release.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target main \
+            --title "Aurora Premium 1.0.9.1 — Smart Forecast Warning" \
+            --notes "Официална подписана актуализация на Aurora Premium за Rocktek G2 и Android TV. Добавен е дискретен кехлибарен символ ⚠ пред значимите прогнози за дъжд, сняг и смесени валежи. При спокойно време предупреждението е скрито. Без промени по Foreca, Clock/Date, празничните ефекти или настройките. Version code: 60. SHA-256: 513d47736768d083b803e4c564df3e4368576f8e5702ad8ab385a0fba48c6747"

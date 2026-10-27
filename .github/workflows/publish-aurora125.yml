@@ -1,0 +1,35 @@
+name: Publish Aurora Premium 1.2.5 signed release
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-aurora125.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_SOURCE: 'https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-6688-820a-ad20-6c95edbd505b/raw?se=2026-10-27T21%3A07%3A46Z&sp=r&sv=2026-02-06&sr=b&scid=1482a8da-cca2-54f8-af20-5368941bfda7&skoid=d4d17077-8f33-42a9-bd8b-aa9d5eaf5320&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-27T11%3A56%3A01Z&ske=2026-10-28T11%3A56%3A01Z&sks=b&skv=2026-02-06&sig=Oh2rs5koYE5qF0wdeKrNaZCJQ1eSBplrFin3EJ%2B7Lhw%3D'
+      APK_NAME: 'Aurora-Premium-1.2.5-DateMaps-SIGNED.apk'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download and validate signed build
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error "$ARTIFACT_SOURCE" -o signed-artifact.zip
+          unzip -j signed-artifact.zip "$APK_NAME" "${APK_NAME%.apk}.sha256"
+          sha256sum --check --strict "${APK_NAME%.apk}.sha256"
+      - name: Publish official release with signed APK
+        run: |
+          set -euo pipefail
+          gh release create v1.2.5-date-maps-alignment "$APK_NAME" \
+            --repo goshorz/aurora-premium-releases \
+            --target main \
+            --title "Aurora Premium 1.2.5 — Date & Maps Alignment" \
+            --notes "Official signed Android TV update (versionCode 86). Moved the official Google Maps attribution 6 px to the left and the date 10 px upwards, retaining clearance between them. Google Weather, VEVOR station temperature, Smart Forecast, Atmosphere 3D icons, animations and existing settings remain unchanged." \
+            --latest
+      - name: Verify official downloadable APK
+        run: |
+          set -euo pipefail
+          gh release view v1.2.5-date-maps-alignment --repo goshorz/aurora-premium-releases --json assets --jq '.assets[].name' | grep -Fx "$APK_NAME"

@@ -1,0 +1,40 @@
+name: Publish Aurora Premium 1.2.13 signed APK
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-aurora-1213.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and verify signed APK artifact
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3 --connect-timeout 20 --max-time 180 'https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-4c04-820a-87d4-36d7af4e291a/raw?se=2026-10-28T19%3A41%3A16Z&sp=r&sv=2026-02-06&sr=b&scid=f6fa8d90-37f0-58bd-bdaa-c9d80afb08b1&skoid=d4d17077-8f33-42a9-bd8b-aa9d5eaf5320&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-28T11%3A03%3A17Z&ske=2026-10-29T11%3A03%3A17Z&sks=b&skv=2026-02-06&sig=v2Uwm/6tJFtwHhvGlmCwl96jivF6Q0IlAaXUr%2BbhzWg%3D' --output signed-artifact.zip
+          unzip -j signed-artifact.zip 'Aurora-Premium-1.2.13-LowerPanel-SIGNED.apk'
+          printf '%s  %s\n' '60e4dab7362ada8d52a0b9aec0000b5961134a0d5a8b78b0e58eba0197b02860' 'Aurora-Premium-1.2.13-LowerPanel-SIGNED.apk' | sha256sum --check --status
+          test "$(stat -c '%s' Aurora-Premium-1.2.13-LowerPanel-SIGNED.apk)" = 2183852
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cat > NOTES.md <<'NOTES'
+          Aurora Premium 1.2.13 — официална стабилна версия за Android TV.
+          
+          - Целият панел е преместен с 12 px надолу за по-естествено разположение.
+          - Aurora Smart Forecast предупреждава за значим наближаващ дъжд непосредствено под часовника.
+          - Анимирани Outline икони, три почасови прогнози под температурата и реална температура от VEVOR.
+          - Запазени са всички настройки и поддръжката за обновяване върху предишните версии.
+          
+          Инсталирайте APK директно върху наличната Aurora Premium, без деинсталиране.
+          NOTES
+          if gh release view v1.2.13-official --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload v1.2.13-official Aurora-Premium-1.2.13-LowerPanel-SIGNED.apk --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create v1.2.13-official Aurora-Premium-1.2.13-LowerPanel-SIGNED.apk --title 'Aurora Premium 1.2.13 — Stable' --notes-file NOTES.md --target main --latest --repo "$GITHUB_REPOSITORY"
+          fi

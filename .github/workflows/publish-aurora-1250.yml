@@ -1,0 +1,37 @@
+name: Publish official Aurora Premium 1.2.50 APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apk/Aurora-Premium-1.2.50-WeatherAnimationsCompactHoliday-SIGNED.apk'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public APK repository
+        uses: actions/checkout@v4
+      - name: Verify the exact signed APK payload
+        run: |
+          set -euo pipefail
+          APK='apk/Aurora-Premium-1.2.50-WeatherAnimationsCompactHoliday-SIGNED.apk'
+          test -s "$APK"
+          echo '99e7974957b8ab09cf1dd95ae1181010ab241f0d13f3fcdbd6bbf69e3e69ac06  '${APK} | sha256sum -c -
+          file "$APK"
+      - name: Publish a GitHub Release with the signed APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          APK='apk/Aurora-Premium-1.2.50-WeatherAnimationsCompactHoliday-SIGNED.apk'
+          TAG='v1.2.50-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title 'Aurora Premium 1.2.50 — Smart Forecast readability, Weather Animations Pro, Compact Mode & Holiday Premium 2.0' \
+              --notes 'Един подписан APK за обновяване през приложението. Smart Forecast 2.1 е с 15% по-едър шрифт; Weather Animations Pro предлага по-естествен дъжд и снежинки; автоматичният компактен режим е по избор; Holiday Premium 2.0 добавя дискретни украси за Коледа, Нова година и Великден. Запазени са часовниците, настройките, местоположението и Pixel Shift. VersionCode 131.'
+          fi
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets

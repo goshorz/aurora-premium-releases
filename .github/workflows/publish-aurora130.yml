@@ -1,0 +1,47 @@
+name: Publish Aurora Premium 1.3.0 official release (one signed APK)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apk/Aurora-Premium-1.3.0-Unified-SIGNED.apk'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: aurora-130-official
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout verified APK from public distribution repo
+        uses: actions/checkout@v4
+      - name: Verify SHA256, package, build and original certificate
+        run: |
+          set -euo pipefail
+          APK='apk/Aurora-Premium-1.3.0-Unified-SIGNED.apk'
+          test -s "$APK"
+          test -s apk/Aurora-Premium-1.3.0-Unified-SIGNED.sha256
+          (cd apk && sha256sum -c Aurora-Premium-1.3.0-Unified-SIGNED.sha256)
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' | tee aurora-130-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora-130-package.txt
+          grep -q "versionCode='132'" aurora-130-package.txt
+          grep -q "versionName='1.3.0'" aurora-130-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora-130-signing.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora-130-signing.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+      - name: Publish exactly one official APK (do not overwrite existing releases)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.0-official'
+          APK='apk/Aurora-Premium-1.3.0-Unified-SIGNED.apk'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to replace an existing public Aurora Premium 1.3.0 release'
+            exit 1
+          fi
+          gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.0 — Smart Forecast 3.0, OLED, Weather Icons Ultra, Flip & Digital Satin' \
+            --notes 'Една обща подписана актуализация: Smart Forecast 3.0 с по-интелигентни предупреждения; OLED Smart Protection; реалистични икони за дъжд и сняг; Flip Clock Ultra Realism; електронен часовник Digital Satin Light и Crystal Depth. Запазени са функциите от 1.2.50, настройките, датата, позицията, Pixel Shift и достъпът до тестовите режими. VersionCode 132; подписан с оригиналния сертификат и инсталирането става върху съществуващата Aurora Premium.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets,tagName

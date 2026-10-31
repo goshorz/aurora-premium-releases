@@ -18,7 +18,7 @@ jobs:
           set -euo pipefail
           APK='apk/Aurora-Premium-1.2.50-WeatherAnimationsCompactHoliday-SIGNED.apk'
           test -s "$APK"
-          echo '99e7974957b8ab09cf1dd95ae1181010ab241f0d13f3fcdbd6bbf69e3e69ac06  '${APK} | sha256sum -c -
+          echo 'cf9dd686ea1d5cb26bbfeffa85ef54d5c83994e4ce7689eef3e02c21b2c91489  '${APK} | sha256sum -c -
           file "$APK"
       - name: Publish a GitHub Release with the signed APK
         env:

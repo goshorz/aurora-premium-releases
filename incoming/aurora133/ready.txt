@@ -6,3 +6,5 @@ Package: bg.razgrad.aurorapremium
 VersionCode: 135
 Original signing certificate: 10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
 Live Worker checked for station (/api), Foreca hourly, 1-minute Nowcast, 15-minute forecast.
+
+All 26 base64 chunks staged and checked; publish 1.3.3 Foreca now.

@@ -1,0 +1,8 @@
+Aurora Premium 1.3.3 Foreca-only official release permissioned handoff
+Immutable source commit: a1ac5bbd89f9dc61015a6fa4882c9309a8d4f7ec
+APK: published/Aurora-Premium-1.3.3-Foreca-SIGNED.apk
+SHA256: da7524a9f783dca23bf8d9d1712830560c8075af0e0644de359d225c6aa1340b
+Package: bg.razgrad.aurorapremium
+VersionCode: 135
+Original signing certificate: 10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+Live Worker checked for station (/api), Foreca hourly, 1-minute Nowcast, 15-minute forecast.

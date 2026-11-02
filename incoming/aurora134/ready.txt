@@ -1,0 +1,7 @@
+Aurora Premium 1.3.4 signed candidate
+versionName=1.3.4
+versionCode=136
+apk=Aurora-Premium-1.3.4-SmartForecast-SIGNED.apk
+sha256=9c87bbb9a8eef6ae0f6c6ac772fc4b1967935a0e31e9341b1e95a46960303dba
+chunk_count=26
+Signing certificate verified in source build 41441008387; publisher independently validates the certificate, SHA, zipalign and Android package.

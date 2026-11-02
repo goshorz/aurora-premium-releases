@@ -7,7 +7,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: aurora-133-official-release
+  group: aurora-134-official-release
   cancel-in-progress: false
 jobs:
   publish:

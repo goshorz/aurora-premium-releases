@@ -1,0 +1,6 @@
+Aurora Premium 1.3.5 official release trigger
+versionCode=137
+versionName=1.3.5
+expectedSha256=6fd4227f50637b3b81335c818f33792e34c46168573dcf8c20bde5ed87fdec8a
+signedBytes=2280842
+sourceBranch=goshorz/Aurora-Preview:release-candidate/aurora-premium-1.3.5-led-weather

@@ -1,0 +1,10 @@
+READY TO PUBLISH — Aurora Premium 1.3.6 official
+Package: bg.razgrad.aurorapremium
+VersionName: 1.3.6
+VersionCode: 138
+Signed APK SHA256: d2f13e5792f444c0d478ec1fb1198f55ea5c1bef1c0a32f0354ac8c34ad4f5b0
+Bytes: 2295670
+Original signing certificate SHA256: 10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+Source commit: a4c670e7d9aa2c343ba60870415b923aac47195f
+All 26 signed APK chunks and four identity metadata files staged with exact SHA match to source.
+Publish one official 1.3.6 APK. Do not overwrite previous releases. OTA remains 1.3.5 until final release checks.

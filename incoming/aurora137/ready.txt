@@ -1,0 +1,4 @@
+SIGNED Aurora Premium 1.3.7 / 139
+SHA256 78d4f54c32ab5d6f8b15976d568de7a3e9dcb852d9e827ded49fd1a5b7f69723
+Source 4b1a14afb0bc4955dfb68b232742f4604d134707
+Publish after re-verifying original production certificate.

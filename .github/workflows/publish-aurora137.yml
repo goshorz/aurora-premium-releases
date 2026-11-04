@@ -1,0 +1,62 @@
+name: Publish Aurora Premium 1.3.7 — official signed LED rain hotfix release
+on:
+  push:
+    branches: [main]
+    paths: ['incoming/aurora137/ready.txt']
+permissions:
+  contents: write
+concurrency:
+  group: aurora137-final-public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct one immutable signed APK and verify source SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME='Aurora-Premium-1.3.7-Official-SIGNED.apk'
+          DIR='incoming/aurora137'
+          test -s "$DIR/sha256.txt"
+          test -s "$DIR/bytes.txt"
+          test -s "$DIR/source-commit.txt"
+          test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
+          mkdir -p dist
+          cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
+          expected="$(cat "$DIR/sha256.txt")"
+          echo "$expected  dist/$NAME" | sha256sum --check
+          actualbytes="$(stat -c %s "dist/$NAME")"
+          test "$actualbytes" -eq "$(cat "$DIR/bytes.txt")"
+          test "$actualbytes" -ge 1800000
+          test "$actualbytes" -le 8000000
+          echo "SIGNED SOURCE SHA256= $expected"
+      - name: Verify package, versionCode 139 and original production signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='dist/Aurora-Premium-1.3.7-Official-SIGNED.apk'
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' > aurora137-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora137-package.txt
+          grep -q "versionCode='139'" aurora137-package.txt
+          grep -q "versionName='1.3.7'" aurora137-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora137-cert.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora137-cert.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+          echo 'Production-signed, package ID, 139, 1.3.7, and original certificate: VERIFIED'
+      - name: Create exactly one official release, refuse overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.7-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite a previously published official 1.3.7'; exit 1
+          fi
+          gh release create "$TAG" dist/Aurora-Premium-1.3.7-Official-SIGNED.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.7 — Restored Full LED Rainfall' \
+            --notes 'Официална Aurora Premium 1.3.7 (versionCode 139) — възстановени всички 9 LED дъждовни капки в три реда при слаб, умерен и силен дъжд. Запазени плавната падаща анимация и динамичната скорост на Weather Animations Ultra 2.0, снегът, Smart Station Monitor, Smart Forecast 4.1, Digital Premium Animation Studio, празничните изображения и гирлянди, Pearl Ice White, Satin Light, Flip и OLED Smart Protection. Прогнози Foreca; температура от Weather Underground с резервен WeatherCloud. Подписана с оригиналния сертификат за директна OTA актуализация от 1.3.6 без загуба на настройки.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,assets

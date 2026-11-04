@@ -1,0 +1,62 @@
+name: Publish Aurora Premium 1.3.6 — official signed six-upgrade release
+on:
+  push:
+    branches: [main]
+    paths: ['incoming/aurora136/ready.txt']
+permissions:
+  contents: write
+concurrency:
+  group: aurora136-final-public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct one immutable signed APK and verify source SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME='Aurora-Premium-1.3.6-Official-SIGNED.apk'
+          DIR='incoming/aurora136'
+          test -s "$DIR/sha256.txt"
+          test -s "$DIR/bytes.txt"
+          test -s "$DIR/source-commit.txt"
+          test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
+          mkdir -p dist
+          cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
+          expected="$(cat "$DIR/sha256.txt")"
+          echo "$expected  dist/$NAME" | sha256sum --check
+          actualbytes="$(stat -c %s "dist/$NAME")"
+          test "$actualbytes" -eq "$(cat "$DIR/bytes.txt")"
+          test "$actualbytes" -ge 1800000
+          test "$actualbytes" -le 8000000
+          echo "SIGNED SOURCE SHA256= $expected"
+      - name: Verify package, versionCode 138 and original production signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='dist/Aurora-Premium-1.3.6-Official-SIGNED.apk'
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' > aurora136-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora136-package.txt
+          grep -q "versionCode='138'" aurora136-package.txt
+          grep -q "versionName='1.3.6'" aurora136-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora136-cert.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora136-cert.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+          echo 'Production-signed, package ID, 138, 1.3.6, and original certificate: VERIFIED'
+      - name: Create exactly one official release, refuse overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.6-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite a previously published official 1.3.6'; exit 1
+          fi
+          gh release create "$TAG" dist/Aurora-Premium-1.3.6-Official-SIGNED.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.6 — Holiday Premium & Weather Ultra' \
+            --notes 'Официална Aurora Premium 1.3.6 (versionCode 138), подписана с оригиналния сертификат за директна актуализация без загуба на настройките. Шест подобрения: (1) Weather Animations Ultra 2.0 — плавни LED дъжд и сняг с три степени според реалните данни; (2) Smart Station Monitor — източник и актуалност на температурата; (3) Smart Forecast 4.1 — по-малко повтарящи се валежни предупреждения; (4) Digital Premium Animation Studio — офлайн демонстрация; (5) Christmas Garland Premium — три стила, основен Празничен Premium; (6) пет реално различни зимно-празнични изображения с точни дати: 1–23 декември, 24–26 декември, 27–30 декември, 31 декември и 1 януари, включително фойерверки и правилна година. Прогноза Foreca. Температура от личната метеостанция чрез Weather Underground (основен) с WeatherCloud (резервен). Запазени Pearl Ice White, Satin Light, OLED Smart Protection, Flip, позициониране и OTA.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,assets

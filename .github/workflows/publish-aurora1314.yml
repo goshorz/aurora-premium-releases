@@ -1,0 +1,62 @@
+name: Publish Aurora Premium 1.3.14 — Reviewed Moon + Smart Forecast 4.1 Diagnostics
+on:
+  push:
+    branches: [main]
+    paths: ['incoming/aurora1314/ready.txt']
+permissions:
+  contents: write
+concurrency:
+  group: aurora1314-final-public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct one immutable signed APK and verify source SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME='Aurora-Premium-1.3.14-Official-SIGNED.apk'
+          DIR='incoming/aurora1314'
+          test -s "$DIR/sha256.txt"
+          test -s "$DIR/bytes.txt"
+          test -s "$DIR/source-commit.txt"
+          test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
+          mkdir -p dist
+          cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
+          expected="$(cat "$DIR/sha256.txt")"
+          echo "$expected  dist/$NAME" | sha256sum --check
+          actualbytes="$(stat -c %s "dist/$NAME")"
+          test "$actualbytes" -eq "$(cat "$DIR/bytes.txt")"
+          test "$actualbytes" -ge 1800000
+          test "$actualbytes" -le 8000000
+          echo "SIGNED SOURCE SHA256= $expected"
+      - name: Verify package, versionCode 146 and original production signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='dist/Aurora-Premium-1.3.14-Official-SIGNED.apk'
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' > aurora1314-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora1314-package.txt
+          grep -q "versionCode='146'" aurora1314-package.txt
+          grep -q "versionName='1.3.14'" aurora1314-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora1314-cert.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora1314-cert.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+          echo 'Production-signed, package ID, 146, 1.3.14, and original certificate: VERIFIED'
+      - name: Create exactly one official release, refuse overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.14-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite a previously published official 1.3.14'; exit 1
+          fi
+          gh release create "$TAG" dist/Aurora-Premium-1.3.14-Official-SIGNED.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.14 — Reviewed Moon + Smart Forecast 4.1 Diagnostics' \
+            --notes 'Aurora Premium 1.3.14 (versionCode 146) — финално изгладена LED луна: 25 плавни реда с еднакви точки, естествен сърповиден силует, без откъснати върхове и прекалено плътна лява част. Smart Forecast 4.1 е проверен на живо: Foreca Hourly и двата Nowcast източника отговарят успешно; при спокойна прогноза липсата на предупреждение е нормална. Коригиран е излишният троен refresh при смяна на настройките; новата Smart Forecast Diagnostics Plus показва двата Nowcast източника, проверява за остарели данни и съобщава когато Cinema Mode крие предупрежденията. Всички 8 LED цвята, анимациите на 9 дъждовни капки и 3 снежинки, Flip Clock, Foreca и WU → WeatherCloud за температура, OLED защита, празнични теми и настройките са запазени. Оригинален сертификат; OTA над 1.3.13.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,assets

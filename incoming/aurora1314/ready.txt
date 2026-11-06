@@ -1,0 +1,7 @@
+Aurora Premium 1.3.14 signed release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=b96756ccc36d952264848cf08cf176fc4474e761
+versionName=1.3.14 versionCode=146 package=bg.razgrad.aurorapremium signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+bytes=2298570
+sha256=284924490003267bacec22ba4b854dd9bef93a2f48818683d85e8aa67b26c59a
+proof=30/30 original private signed export file Git SHAs equal staged public repository Git SHAs; Node regressions, live Smart Forecast 4.1 probe and Android original certificate checks passed.

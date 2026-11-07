@@ -1,0 +1,62 @@
+name: Publish Aurora Premium 1.3.23 — Signature Thin Crescent Outline
+on:
+  push:
+    branches: [main]
+    paths: ['incoming/aurora1323/ready.txt']
+permissions:
+  contents: write
+concurrency:
+  group: aurora1323-final-public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct one immutable signed APK and verify source SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME='Aurora-Premium-1.3.23-Official-SIGNED.apk'
+          DIR='incoming/aurora1323'
+          test -s "$DIR/sha256.txt"
+          test -s "$DIR/bytes.txt"
+          test -s "$DIR/source-commit.txt"
+          test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
+          mkdir -p dist
+          cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
+          expected="$(cat "$DIR/sha256.txt")"
+          echo "$expected  dist/$NAME" | sha256sum --check
+          actualbytes="$(stat -c %s "dist/$NAME")"
+          test "$actualbytes" -eq "$(cat "$DIR/bytes.txt")"
+          test "$actualbytes" -ge 1800000
+          test "$actualbytes" -le 8000000
+          echo "SIGNED SOURCE SHA256= $expected"
+      - name: Verify package, versionCode 155 and original production signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='dist/Aurora-Premium-1.3.23-Official-SIGNED.apk'
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' > aurora1323-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora1323-package.txt
+          grep -q "versionCode='155'" aurora1323-package.txt
+          grep -q "versionName='1.3.23'" aurora1323-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora1323-cert.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora1323-cert.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+          echo 'Production-signed, package ID, 155, 1.3.23, and original certificate: VERIFIED'
+      - name: Create exactly one official release, refuse overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.23-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite a previously published official 1.3.23'; exit 1
+          fi
+          gh release create "$TAG" dist/Aurora-Premium-1.3.23-Official-SIGNED.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.23 — Natural Moon Outline in Signature' \
+            --notes 'Aurora Premium 1.3.23 (versionCode 155) — прецизирана нощна променлива облачност в Aurora Signature: ясно изразен тънък контурен полумесец, изместен нагоре вдясно и частично скрит зад облака; без плътна бяла форма. Запазени са часовникът, плавните метеорологични анимации, Animation Studio, Digital Premium, Flip Clock, Foreca, личната метеостанция WUnderground/WeatherCloud, Smart Forecast 4.1, OLED защита и празничните ефекти. Подписан с оригиналния сертификат. Обновяване от 1.3.22 без преинсталиране.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,assets

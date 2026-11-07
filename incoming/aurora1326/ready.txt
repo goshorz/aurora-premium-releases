@@ -1,0 +1,5 @@
+Aurora Premium v1.3.26-official
+source=41bd9e4ba613747de92960454a679f1892cb2bc5
+sha256=065d5e55c9551db5a11d79a68fd9c8a976c754fba603cec1ee3dad67be343613
+size=2310481
+versionCode=158

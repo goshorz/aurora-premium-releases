@@ -1,0 +1,12 @@
+Aurora Premium 1.3.18 — USER APPROVED LED MOON/CLOUD — READY
+versionName=1.3.18
+versionCode=150
+package=bg.razgrad.aurorapremium
+original-signing-certificate-sha256=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+apk-sha256=f910dfb816e9c8ce9e9aad03a338ff683a4a646889146f1cd5416082318217b7
+apk-bytes=2302915
+signed-source-commit=edbe0e011cb15e679af4c8bca3c7b73cfd9cd32d
+production-sign-workflow=https://github.com/goshorz/Aurora-Preview/actions/runs/42408860765
+26 encoded APK chunks and 4 metadata files verified bit-for-bit across repositories by Git blob SHA and byte length
+Approved image-based 61 moon dots and 51 cloud dots verified in both Digital renderers
+No previous release may be overwritten

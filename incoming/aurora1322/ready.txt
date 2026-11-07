@@ -1,0 +1,5 @@
+Aurora Premium v1.3.22-official
+source=d99329328d55ade84c70d1696416a1e8d28db9de
+sha256=61f6bdb310563cdba8ecdd45d85ce55b3f1ed3d21d69c6bc8b34046f0abe5167
+size=2310001
+versionCode=154

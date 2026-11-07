@@ -1,0 +1,12 @@
+Aurora Premium 1.3.21 — AURORA SIGNATURE ANIMATION STUDIO — READY
+versionName=1.3.21
+versionCode=153
+package=bg.razgrad.aurorapremium
+original-signing-certificate-sha256=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+apk-sha256=17c971215977722b6cf4b1d3fd6aae0975ee4c02c546538fe9ea103c4d40092d
+apk-bytes=2309837
+signed-source-commit=5524017e849a91f5021287a7a713b14bdffa24d2
+production-sign-workflow=https://github.com/goshorz/Aurora-Preview/actions/runs/42417164271
+All 26 signed APK base64 fragments and four metadata files matched original export blob SHA and byte sizes.
+Third preview style uses the exact original AuroraSignature1320 SVG renderer, offline and isolated, retaining current production preferences.
+Never overwrite a previous release.

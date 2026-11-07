@@ -1,0 +1,11 @@
+Aurora Premium 1.3.19 — APPROVED CRESCENT MICRO POLISH — READY
+versionName=1.3.19
+versionCode=151
+package=bg.razgrad.aurorapremium
+original-signing-certificate-sha256=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+apk-sha256=2b7dba2811284bdeeb3b07d000854faf1cb38b24bbd7df88525bb83ff630c0e3
+apk-bytes=2304192
+signed-source-commit=6a0bd264d9176ad0586a0fffa9504080e9f89a41
+production-sign-workflow=https://github.com/goshorz/Aurora-Preview/actions/runs/42412040323
+Verified all 26 immutable APK fragments and four metadata blobs bit-for-bit across repositories.
+No previous release may be overwritten; preserve all 61 approved moon and 51 cloud coordinates.

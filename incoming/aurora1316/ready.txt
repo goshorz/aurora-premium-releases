@@ -1,0 +1,11 @@
+Aurora Premium 1.3.16 — Precision Edition — RELEASE READY
+versionName=1.3.16
+versionCode=148
+package=bg.razgrad.aurorapremium
+original-signing-certificate-sha256=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+apk-sha256=087eeaebde1271723034475cfee3517705b2ef9fc00d6e8b531e088a9e766301
+apk-bytes=2301439
+source-commit=50a74d061d38865fbeba36fb229039c9b0af4a75
+signed-ci=https://github.com/goshorz/Aurora-Preview/actions/runs/42402587145
+all 30 incoming export files independently matched private signed source Git blob SHA and byte lengths
+publish only immutable signed APK after full SHA256/version/signature/zipalign verification

@@ -1,0 +1,10 @@
+Aurora Premium 1.3.32 official release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=27e76b12c41479a717d9aa1e8e8e11f1b43c8a25
+versionName=1.3.32
+versionCode=164
+package=bg.razgrad.aurorapremium
+bytes=2311753
+sha256=6ac0daf70d35927f58e86826e9fd1f1a2e7e983af9131ffcb5ea6c15ae63208a
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+approval=user-approved watch-reference V2 crescent for Aurora Signature

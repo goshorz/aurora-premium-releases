@@ -1,0 +1,10 @@
+Aurora Premium 1.3.28 official release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=b0b5daa8fd0d557c91c7f2feb2d88d5b8296bc9f
+versionName=1.3.28
+versionCode=160
+package=bg.razgrad.aurorapremium
+bytes=2310701
+sha256=9d42c12be14ae89b6604444e7e314fc8395b7ce6153a171e337f012e4645d064
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+proof=26/26 immutable base64 part files staged; original-certificate signing and identity verified by source workflow

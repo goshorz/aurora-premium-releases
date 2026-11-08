@@ -1,0 +1,10 @@
+Aurora Premium 1.3.34 official release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=b0986afd755437b6806b0af823cb945d3d8cd6fc
+versionName=1.3.34
+versionCode=166
+package=bg.razgrad.aurorapremium
+bytes=2312201
+sha256=3b66a11543d1c34e51aa24db211279bda87ef5b876394040f225d6fc583da4cd
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+approval=user requested Signature negative sign gap increase from 2px to 4px; all else preserved

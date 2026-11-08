@@ -1,0 +1,32 @@
+name: Verify Aurora 1.3.28 direct APK download (diagnostic only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-aurora1328-download.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download APK from actual URL (not GitHub API)
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://github.com/goshorz/aurora-premium-releases/releases/download/v1.3.28-official/Aurora-Premium-1.3.28-Official-SIGNED.apk'
+          echo 'Checking direct GitHub Release URL and all HTTP redirects'
+          curl --location --fail --show-error --retry 3 --retry-all-errors \
+            --retry-delay 4 --connect-timeout 15 --max-time 125 \
+            --user-agent 'Aurora-OTA-Diagnostics/1.3.28' \
+            --dump-header response-headers.txt --output update.apk "$URL"
+          printf 'Final header lines:\n'
+          tail -n 25 response-headers.txt
+          test "$(stat -c %s update.apk)" -eq 2310701
+          printf '%s  update.apk\n' '9d42c12be14ae89b6604444e7e314fc8395b7ce6153a171e337f012e4645d064' | sha256sum -c
+          echo 'PASS: GitHub Release direct HTTPS download, full APK size and SHA256 verified'

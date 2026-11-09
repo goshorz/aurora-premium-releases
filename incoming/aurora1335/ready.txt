@@ -1,0 +1,10 @@
+Aurora Premium 1.3.35 official release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=3790d91852c74c978cad4b4a1c945a37ca3120d6
+versionName=1.3.35
+versionCode=167
+package=bg.razgrad.aurorapremium
+bytes=2315752
+sha256=93c52ba6203394b64a798a8cb8d6c399f4450a518b2c4d5be58c54f807310bb8
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+approval=two new selectable Horizon and Atelier chronograph layouts while Signature remains untouched

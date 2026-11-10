@@ -1,0 +1,10 @@
+Aurora Premium 1.3.36 official release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=0b90aa28ae1e6e89713957c6fb5e2e4f9a2ee22e
+versionName=1.3.36
+versionCode=168
+package=bg.razgrad.aurorapremium
+bytes=2312329
+sha256=ffac5e25ef66877084fab58a1b5c352762dc8f71010ebd25fd8f9f8acbca8bcc
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+approval=user requested Horizon Atelier removal and Aurora Signature default with migration

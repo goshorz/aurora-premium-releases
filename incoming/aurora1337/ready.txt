@@ -1,0 +1,10 @@
+Aurora Premium 1.3.37 official holiday release gate
+sourceRepo=goshorz/Aurora-Preview
+sourceCommit=cfcaa978cf16663344d0ad392968638ec06eaa3f
+versionName=1.3.37
+versionCode=169
+package=bg.razgrad.aurorapremium
+bytes=2321853
+sha256=2fe67b037d6cb8736d2cbb2ab743dfc97c4097e5d2d6b031020a5b984b2a73ef
+signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
+approval=six approved December and January visuals, subtle motion and Signature by default

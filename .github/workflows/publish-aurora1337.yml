@@ -1,0 +1,62 @@
+name: Publish Aurora Premium 1.3.37 — Christmas & New Year Premium
+on:
+  push:
+    branches: [main]
+    paths: ['incoming/aurora1337/ready.txt']
+permissions:
+  contents: write
+concurrency:
+  group: aurora1337-final-public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct one immutable signed APK and verify source SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME='Aurora-Premium-1.3.37-Official-SIGNED.apk'
+          DIR='incoming/aurora1337'
+          test -s "$DIR/sha256.txt"
+          test -s "$DIR/bytes.txt"
+          test -s "$DIR/source-commit.txt"
+          test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
+          mkdir -p dist
+          cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
+          expected="$(cat "$DIR/sha256.txt")"
+          echo "$expected  dist/$NAME" | sha256sum --check
+          actualbytes="$(stat -c %s "dist/$NAME")"
+          test "$actualbytes" -eq "$(cat "$DIR/bytes.txt")"
+          test "$actualbytes" -ge 1800000
+          test "$actualbytes" -le 8000000
+          echo "SIGNED SOURCE SHA256= $expected"
+      - name: Verify package, versionCode 169 and original production signing certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='dist/Aurora-Premium-1.3.37-Official-SIGNED.apk'
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep '^package:' > aurora1337-package.txt
+          grep -q "name='bg.razgrad.aurorapremium'" aurora1337-package.txt
+          grep -q "versionCode='169'" aurora1337-package.txt
+          grep -q "versionName='1.3.37'" aurora1337-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" > aurora1337-cert.txt
+          grep -qi '10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7' aurora1337-cert.txt
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -v 4 "$APK"
+          echo 'Production-signed, package ID, 169, 1.3.37, and original certificate: VERIFIED'
+      - name: Create exactly one official release, refuse overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v1.3.37-official'
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite a previously published official 1.3.37'; exit 1
+          fi
+          gh release create "$TAG" dist/Aurora-Premium-1.3.37-Official-SIGNED.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'Aurora Premium 1.3.37 — Christmas & New Year Premium' \
+            --notes 'Aurora Premium 1.3.37 (versionCode 169): шест нови компактни празнични композиции от одобрените изображения — Коледна магия (1–15.12), В очакване на Коледа (16–23.12), Дядо Коледа (24–26.12), Весели празници (27–30.12), Весело посрещане на Новата година (31.12) и Честита Нова година (01.01). Деликатни анимации и възможност за изключване на движението. Дългият надпис за 31 декември вече се пренася на два реда, вместо да изчезва. Aurora Signature остава по подразбиране; Horizon и Atelier са премахнати, останалите стилове, данни за времето и функции са запазени. Оригинален подписан APK, обновяване без деинсталиране.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,assets

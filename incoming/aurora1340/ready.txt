@@ -8,3 +8,4 @@ bytes=2381457
 sha256=4fa53835a968b3ab4e0303f3428f47bbbe6cfcbecda1c22f22cd36b740745e2f
 signingFingerprint=10efc5ad6c3b56f549ac78d571876ea1a102594958cd6b9660486f0954202ab7
 note=Compact 62dp old-style 6 holiday greetings with gentle motion, embedded captions and no duplicate text; do not change OTA before device test.
+releaseWorkflowRetry=remove-stale-1.3.39-SHA

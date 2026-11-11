@@ -24,7 +24,6 @@ jobs:
           test -s "$DIR/source-commit.txt"
           test "$(cat "$DIR/source-commit.txt")" = 'dcad30a4848e1ae9201c779bf682a90b6348261e'
           test "$(cat "$DIR/sha256.txt")" = '4fa53835a968b3ab4e0303f3428f47bbbe6cfcbecda1c22f22cd36b740745e2f'
-          test "$(cat "$DIR/source-commit.txt")" = '2ad2281c893a94cfac0fe93b0f1d93bcd79a5775'
           test "$(find "$DIR" -name 'part-*' | wc -l)" -ge 20
           mkdir -p dist
           cat "$DIR"/part-* | base64 --decode > "dist/$NAME"
